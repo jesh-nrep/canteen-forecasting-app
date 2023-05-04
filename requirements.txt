@@ -1,4 +1,5 @@
 azure-storage-blob
+matplotlib
 numpy
 pandas
 pycaret

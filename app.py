@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 import datetime
 import os
 import pandas as pd
@@ -32,10 +33,15 @@ def main():
     pred_data = true_data.drop(["actual"], axis=1)#.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
     true_data['predictions'] = model.predict(X=pred_data)
-    if true_data['actual'].isna().sum() == 0:
-        st.line_chart(data=true_data, y=["actual", "predictions"])
-    else:
-        st.line_chart(data=true_data, y=["predictions"])
+    fig, ax = plt.subplots()
+
+    copy_data = true_data.dropna() # TODO: Plot for indeværende uge
+    ax.plot(copy_data.index, copy_data['actual'], color="green", label="Actuals")
+
+    ax.plot(true_data.index, true_data['predictions'], color="blue", label="Predictions")
+    ax.legend()
+    ax.set_ylim(0, 300)
+    st.pyplot(fig)
 
 
 if __name__ == "__main__":
