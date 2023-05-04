@@ -1,0 +1,4 @@
+*.pkl
+logs.log
+.vscode/
+__pycache__

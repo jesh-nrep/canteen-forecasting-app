@@ -1,3 +1,7 @@
+azure-storage-blob
 numpy
 pandas
+pycaret
+pycaret[models]
+sktime
 streamlit
