@@ -24,15 +24,18 @@ def load_data():
 def main():
     st.title("Kantine Forecasting")
     week_start, week_end = next_week_range()
-    model = load_model("ts_model", "azure", {"container": "models"})
+    model = load_model("regression_model", "azure", {"container": "models"})
     data = load_data()
     start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
     st.write("Forecast for: " + start_date.strftime("%Y-%m-%d") + " - " + end_date.strftime("%Y-%m-%d"))
     true_data = data.loc[start_date:end_date]
-    pred_data = true_data.drop(["actual"], axis=1).dropna()
-    true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
-    st.line_chart(data=true_data, y=["total", "predictions"])
-    print("Nice")
+    pred_data = true_data.drop(["actual"], axis=1)#.dropna()
+    #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
+    true_data['predictions'] = model.predict(X=pred_data)
+    if true_data['actual'].isna().sum() == 0:
+        st.line_chart(data=true_data, y=["actual", "predictions"])
+    else:
+        st.line_chart(data=true_data, y=["predictions"])
 
 
 if __name__ == "__main__":
