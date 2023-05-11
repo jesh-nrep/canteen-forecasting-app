@@ -72,9 +72,9 @@ def main():
         
         copy_data = true_data.dropna()
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
+        fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
         if not all(true_data['actual'] == true_data['predictions']):
-            fig.add_trace(go.Scatter(x=true_data.index.strftime("%A"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
+            fig.add_trace(go.Scatter(x=true_data.index.strftime("%A %d/%m"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
         
         fig.update_layout(xaxis_title="Week day",
                         yaxis_title="Number of eating guests",
