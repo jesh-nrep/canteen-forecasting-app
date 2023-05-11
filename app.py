@@ -1,10 +1,16 @@
+from PIL import Image
 import streamlit as st
 import plotly.graph_objects as go
 import datetime
 import os
+import numpy as np
 import pandas as pd
 from pycaret.regression import load_model
 from azure.storage.blob import BlobClient
+
+IMG_BINS = np.array([0.6, 0.8, 1.2, 1.4])
+IMG_PATH = np.array([1, 2, 3, 4, 5])
+IMG_LABELS = np.array(["Slow day", "Relaxed", "Somewhat busy", "Heavy load", "Full house"])
 
 def next_week_range():
     next_week = datetime.date.today() + datetime.timedelta(weeks=1)
@@ -58,32 +64,30 @@ def check_password():
         # Password correct.
         return True
 
+def load_images(arr):
+    imgs = []
+    captions = []
+    for el in arr:
+        imgs.append(Image.open("imgs\\chef" + str(el) + ".png"))
+        captions.append(IMG_LABELS[el-1])
+    return imgs, captions
+
 def main():
     if check_password():
         st.title("Urban Partners Canteen Forecasting")
         week_start, week_end = next_week_range()
         model = load_model("regression_model", "azure", {"container": "models"})
         data = load_data()
+        image_binning = IMG_BINS*data['actual'].mean()
+        image_binning = np.insert(image_binning, 0, data['actual'].min())
+        image_binning = np.append(image_binning, data['actual'].max())
         start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
         true_data = data.loc[start_date:end_date]
-        pred_data = true_data.drop(["actual"], axis=1)#.dropna()
-        #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
+        pred_data = true_data.drop(["actual"], axis=1)
         true_data['predictions'] = model.predict(X=pred_data)
-        
-        copy_data = true_data.dropna()
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
-        if not all(true_data['actual'] == true_data['predictions']):
-            fig.add_trace(go.Scatter(x=true_data.index.strftime("%A %d/%m"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
-        
-        fig.update_layout(xaxis_title="Week day",
-                        yaxis_title="Number of eating guests",
-                        showlegend=True,
-                        title_x = 0.5,
-                        title_text=plot_title(start_date, end_date))
-        fig.update_yaxes(range=[0,300])
-        st.plotly_chart(fig, use_container_width=True)
-
+        true_data['img_index'] = pd.cut(true_data['predictions'], bins=image_binning, labels=IMG_PATH)
+        imgs, captions = load_images(true_data['img_index'])
+        st.image(imgs, captions)
 
 if __name__ == "__main__":
     main()
