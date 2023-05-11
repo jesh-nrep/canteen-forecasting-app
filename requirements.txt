@@ -1,5 +1,4 @@
 azure-storage-blob
-numpy
 pandas
 plotly
 pycaret
