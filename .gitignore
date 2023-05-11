@@ -1,4 +1,5 @@
 *.pkl
 logs.log
 .vscode/
+.streamlit/
 __pycache__
