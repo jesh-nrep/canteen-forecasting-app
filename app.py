@@ -4,7 +4,8 @@ import datetime
 import os
 import pandas as pd
 import numpy as np
-from pycaret.time_series import load_model
+#from pycaret.time_series import load_model
+from pycaret.regression import load_model
 from azure.storage.blob import BlobClient
 
 def next_week_range():
@@ -22,24 +23,34 @@ def load_data():
     data.rename({"total": "actual"}, axis=1, inplace=True)
     return data
 
+def plot_title(start_date, end_date):
+    start_week = start_date.strftime("%W")
+    end_week = end_date.strftime("%W")
+    if start_week == end_week:
+        title_str = f"Uge {start_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
+    else:
+        title_str = f"Uge {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
+    return title_str
+
 def main():
-    st.title("Kantine Forecasting")
+    st.title("NREP Kantine Forecasting")
     week_start, week_end = next_week_range()
     model = load_model("regression_model", "azure", {"container": "models"})
     data = load_data()
-    start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
-    st.write("Forecast for: " + start_date.strftime("%Y-%m-%d") + " - " + end_date.strftime("%Y-%m-%d"))
+    start_date, end_date = st.date_input("Vælg datoer", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
     true_data = data.loc[start_date:end_date]
     pred_data = true_data.drop(["actual"], axis=1)#.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
     true_data['predictions'] = model.predict(X=pred_data)
     fig, ax = plt.subplots()
+    plt.xticks(rotation=45)
 
-    copy_data = true_data.dropna() # TODO: Plot for indeværende uge
-    ax.plot(copy_data.index, copy_data['actual'], color="green", label="Actuals")
+    copy_data = true_data.dropna()
+    ax.plot(copy_data.index.strftime("%A"), copy_data['actual'], color="green", label="Actuals")
 
-    ax.plot(true_data.index, true_data['predictions'], color="blue", label="Predictions")
+    ax.plot(true_data.index.strftime("%A"), true_data['predictions'], color="blue", label="Predictions")
     ax.legend()
+    ax.set_title(plot_title(start_date, end_date))
     ax.set_ylim(0, 300)
     st.pyplot(fig)
 
