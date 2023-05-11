@@ -1,7 +1,7 @@
 azure-storage-blob
-matplotlib
 numpy
 pandas
+plotly
 pycaret
 pycaret[models]
 sktime

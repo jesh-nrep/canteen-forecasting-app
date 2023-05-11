@@ -1,10 +1,8 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import datetime
 import os
 import pandas as pd
-import numpy as np
-#from pycaret.time_series import load_model
 from pycaret.regression import load_model
 from azure.storage.blob import BlobClient
 
@@ -27,32 +25,35 @@ def plot_title(start_date, end_date):
     start_week = start_date.strftime("%W")
     end_week = end_date.strftime("%W")
     if start_week == end_week:
-        title_str = f"Uge {start_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
+        title_str = f"Week {start_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
     else:
-        title_str = f"Uge {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
+        title_str = f"Week {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
     return title_str
 
 def main():
-    st.title("NREP Kantine Forecasting")
+    st.title("NREP Canteen Forecasting")
     week_start, week_end = next_week_range()
     model = load_model("regression_model", "azure", {"container": "models"})
     data = load_data()
-    start_date, end_date = st.date_input("Vælg datoer", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
+    start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
     true_data = data.loc[start_date:end_date]
     pred_data = true_data.drop(["actual"], axis=1)#.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
     true_data['predictions'] = model.predict(X=pred_data)
-    fig, ax = plt.subplots()
-    plt.xticks(rotation=45)
-
+    
     copy_data = true_data.dropna()
-    ax.plot(copy_data.index.strftime("%A"), copy_data['actual'], color="green", label="Actuals")
-
-    ax.plot(true_data.index.strftime("%A"), true_data['predictions'], color="blue", label="Predictions")
-    ax.legend()
-    ax.set_title(plot_title(start_date, end_date))
-    ax.set_ylim(0, 300)
-    st.pyplot(fig)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
+    if not all(true_data['actual'] == true_data['predictions']):
+        fig.add_trace(go.Scatter(x=true_data.index.strftime("%A"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
+    
+    fig.update_layout(xaxis_title="Week day",
+                      yaxis_title="Number of eating guests",
+                      showlegend=True,
+                      title_x = 0.5,
+                      title_text=plot_title(start_date, end_date))
+    fig.update_yaxes(range=[0,300])
+    st.plotly_chart(fig, use_container_width=True)
 
 
 if __name__ == "__main__":
