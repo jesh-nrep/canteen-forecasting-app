@@ -83,7 +83,7 @@ def load_images(arr):
     return imgs, captions
 
 def main():
-    if True: #check_password():
+    if check_password():
         st.title("Urban Partners Canteen Forecasting")
         model = load_model("regression_model", "azure", {"container": "models"})
         data = load_data()
