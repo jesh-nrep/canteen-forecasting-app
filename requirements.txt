@@ -1,8 +1,6 @@
 azure-storage-blob
 numpy
 pandas
-plotly
 pycaret
 pycaret[models]
-sktime
 streamlit
