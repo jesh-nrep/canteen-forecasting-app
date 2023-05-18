@@ -78,7 +78,7 @@ def load_images(arr):
     imgs = []
     captions = []
     for el in arr:
-        imgs.append(Image.open("imgs\\chef" + str(el) + ".png"))
+        imgs.append(Image.open(r"imgs\chef" + str(el) + ".png"))
         captions.append(IMG_LABELS[el-1])
     return imgs, captions
 
