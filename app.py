@@ -1,4 +1,5 @@
 from PIL import Image
+import plotly.graph_objects as go
 import streamlit as st
 import datetime
 import os
@@ -98,7 +99,28 @@ def user_app():
             st.image(imgs[i], captions[i])
 
 def admin_app():
-    pass
+    week_start, week_end = next_week_range()
+    model = load_model("regression_model", "azure", {"container": "models"})
+    data = load_data()
+    start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
+    true_data = data.loc[start_date:end_date]
+    pred_data = true_data.drop(["actual"], axis=1)#.dropna()
+    #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
+    true_data['predictions'] = model.predict(X=pred_data)
+    
+    copy_data = true_data.dropna()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
+    if not all(true_data['actual'] == true_data['predictions']):
+        fig.add_trace(go.Scatter(x=true_data.index.strftime("%A %d/%m"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
+    
+    fig.update_layout(xaxis_title="Week day",
+                    yaxis_title="Number of eating guests",
+                    showlegend=True,
+                    title_x = 0.5,
+                    title_text=plot_title(start_date, end_date))
+    fig.update_yaxes(range=[0,300])
+    st.plotly_chart(fig, use_container_width=True)
 
 def main():
     st.title("Urban Partners Canteen Forecasting")
