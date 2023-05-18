@@ -49,6 +49,7 @@ def check_password():
             del st.session_state["password"]  # don't store password
         elif st.session_state['password'] == st.secrets['admin_password']:
             st.session_state['password_correct'] = 'admin'
+            del st.session_state["password"]  # don't store password
         else:
             st.session_state["password_correct"] = False
 
@@ -68,6 +69,15 @@ def check_password():
     else:
         # Password correct.
         return st.session_state['password_correct']
+
+def plot_title(start_date, end_date):
+    start_week = start_date.strftime("%W")
+    end_week = end_date.strftime("%W")
+    if start_week == end_week:
+        title_str = f"Week {start_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
+    else:
+        title_str = f"Week {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
+    return title_str
 
 def load_images(arr):
     imgs = []
