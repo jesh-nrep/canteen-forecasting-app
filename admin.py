@@ -16,7 +16,7 @@ def plot_title(start_date, end_date):
         title_str = f"Week {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
     return title_str
 
-def admin_app(model, data):
+def admin_app(model, data, headcount):
     week_start, week_end = next_week_range()
     start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
     true_data = data.loc[start_date:end_date]
@@ -35,5 +35,5 @@ def admin_app(model, data):
                     showlegend=True,
                     title_x = 0.5,
                     title_text=plot_title(start_date, end_date))
-    fig.update_yaxes(range=[0,300])
+    fig.update_yaxes(range=[0,headcount])
     st.plotly_chart(fig, use_container_width=True)

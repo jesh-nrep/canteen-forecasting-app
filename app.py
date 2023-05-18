@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import json
 import pandas as pd
 from pycaret.regression import load_model
 from azure.storage.blob import BlobClient
@@ -15,6 +16,14 @@ def load_data():
     data = pd.read_csv(blob_data, parse_dates=['date'], index_col="date")
     data.rename({"total": "actual"}, axis=1, inplace=True)
     return data
+
+def load_headcount():
+    blob = BlobClient.from_connection_string(conn_str=os.environ["AZURE_STORAGE_CONNECTION_STRING"], 
+                                             container_name="data", 
+                                             blob_name="dk_headcount.json")
+    blob_data = blob.download_blob()
+    headcount_json = json.loads(blob_data.readall())
+    return sum(headcount_json.values())
 
 def check_password():
     """Returns `True` if the user had the correct password."""
@@ -51,11 +60,12 @@ def main():
     st.title("Urban Partners Canteen Forecasting")
     model = load_model("regression_model", "azure", {"container": "models"})
     data = load_data()
+    headcount = load_headcount()
     cond = check_password()
     if cond == "user":
-        user_app(model, data)
+        user_app(model, data, headcount)
     elif cond == "admin":
-        admin_app(model, data)
+        admin_app(model, data, headcount)
         
 
 if __name__ == "__main__":

@@ -4,9 +4,9 @@ import pandas as pd
 import streamlit as st
 from PIL import Image
 
-IMG_BINS = np.array([0.6, 0.8, 1.2, 1.4])
-IMG_PATH = np.array([1, 2, 3, 4, 5])
-IMG_LABELS = np.array(["Slow day", "Relaxed", "Somewhat busy", "Heavy load", "Full house"])
+IMG_BINS = np.array([0.2, 0.6, 0.8])
+IMG_PATH = np.array([1, 3, 4, 5])
+IMG_LABELS = np.array(["Slow day \n (1/4)", "Business as usual \n (2/4)", "Heavy load \n (3/4)", "Full house \n (4/4)"])
 
 def get_dates_of_week(week_str: str):
     week = datetime.date.today()
@@ -28,13 +28,21 @@ def load_images(arr):
         captions.append(IMG_LABELS[el-1])
     return imgs, captions
 
-def user_app(model, data):
-    image_binning = IMG_BINS*data['actual'].mean()
-    image_binning = np.insert(image_binning, 0, data['actual'].min())
-    image_binning = np.append(image_binning, data['actual'].max())
+def explainer_load_images():
+    imgs = []
+    captions = []
+    for i in range(len(IMG_LABELS)):
+        imgs.append(Image.open("imgs/chef" + str(i+1) + ".jpg"))
+        captions.append(IMG_LABELS[i])
+    return imgs, captions
+
+def user_app(model, data, headcount):
+    image_binning = IMG_BINS*headcount
+    image_binning = np.insert(image_binning, 0, 0)
+    image_binning = np.append(image_binning, headcount)
     option = st.selectbox('Whick week would you like to view?', options=('Last week', 'This week', 'Next week', "In two weeks"), index=1)
     start_date, end_date = get_dates_of_week(option)
-    st.text(f"You have selected: {start_date.strftime('%d/%m')}-{end_date.strftime('%d/%m')}")
+    st.write(f"You have selected: {start_date.strftime('%d/%m')}-{end_date.strftime('%d/%m')}")
     true_data = data.loc[start_date:end_date]
     pred_data = true_data.drop(["actual"], axis=1)
     true_data['predictions'] = model.predict(X=pred_data)
@@ -46,3 +54,11 @@ def user_app(model, data):
             date_column = start_date + datetime.timedelta(days=i)
             st.write(date_column.strftime("%A %d/%m"))
             st.image(imgs[i], captions[i])
+
+    with st.expander("See explanation"):
+        explainer_columns = st.columns(len(IMG_LABELS))
+        explainer_imgs, explainer_captions = explainer_load_images()
+        for i, col in enumerate(explainer_columns):
+            with col:
+                st.image(explainer_imgs[i], explainer_captions[i])
+        st.write("Explanation regarding categories....")
