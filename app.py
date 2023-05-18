@@ -21,8 +21,10 @@ def get_dates_of_week(week_str: str):
     week = datetime.date.today()
     if week_str == "Last week":
         week -= datetime.timedelta(weeks=1)
-    elif week_str == "In two weeks":
+    elif week_str == "Next week":
         week += datetime.timedelta(weeks=1)
+    elif week_str == "In two weeks":
+        week += datetime.timedelta(weeks=2)
     desired_week_start = datetime.datetime.strptime(week.strftime("%Y-W%W") + '-1', "%Y-W%W-%w")
     desired_week_end = desired_week_start + datetime.timedelta(days=4)
     return desired_week_start, desired_week_end
@@ -35,15 +37,6 @@ def load_data():
     data = pd.read_csv(blob_data, parse_dates=['date'], index_col="date")
     data.rename({"total": "actual"}, axis=1, inplace=True)
     return data
-
-def plot_title(start_date, end_date):
-    start_week = start_date.strftime("%W")
-    end_week = end_date.strftime("%W")
-    if start_week == end_week:
-        title_str = f"Week {start_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
-    else:
-        title_str = f"Week {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
-    return title_str
 
 def check_password():
     """Returns `True` if the user had the correct password."""
@@ -89,7 +82,7 @@ def main():
         image_binning = IMG_BINS*data['actual'].mean()
         image_binning = np.insert(image_binning, 0, data['actual'].min())
         image_binning = np.append(image_binning, data['actual'].max())
-        option = st.selectbox('Whick week would you like to view?', options=('Last week', 'This week', 'In two weeks'), index=1)
+        option = st.selectbox('Whick week would you like to view?', options=('Last week', 'This week', 'Next week', "In two weeks"), index=1)
         start_date, end_date = get_dates_of_week(option)
         st.text(f"You have selected: {start_date.strftime('%d/%m')}-{end_date.strftime('%d/%m')}")
         true_data = data.loc[start_date:end_date]
