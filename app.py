@@ -18,6 +18,16 @@ def next_week_range():
     desired_week_end = desired_week_start + datetime.timedelta(days=4)
     return desired_week_start, desired_week_end
 
+def get_dates_of_week(week_str: str):
+    week = datetime.date.today()
+    if week_str == "Last week":
+        week -= datetime.timedelta(weeks=1)
+    elif week_str == "In two weeks":
+        week += datetime.timedelta(weeks=1)
+    desired_week_start = datetime.datetime.strptime(week.strftime("%Y-W%W") + '-1', "%Y-W%W-%w")
+    desired_week_end = desired_week_start + datetime.timedelta(days=4)
+    return desired_week_start, desired_week_end
+
 def load_data():
     blob = BlobClient.from_connection_string(conn_str=os.environ["AZURE_STORAGE_CONNECTION_STRING"], 
                                              container_name="data", 
@@ -73,21 +83,27 @@ def load_images(arr):
     return imgs, captions
 
 def main():
-    if check_password():
+    if True: #check_password():
         st.title("Urban Partners Canteen Forecasting")
-        week_start, week_end = next_week_range()
         model = load_model("regression_model", "azure", {"container": "models"})
         data = load_data()
         image_binning = IMG_BINS*data['actual'].mean()
         image_binning = np.insert(image_binning, 0, data['actual'].min())
         image_binning = np.append(image_binning, data['actual'].max())
-        start_date, end_date = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
+        option = st.selectbox('Whick week would you like to view?', options=('Last week', 'This week', 'In two weeks'), index=1)
+        start_date, end_date = get_dates_of_week(option)
+        st.text(f"You have selected: {start_date.strftime('%d/%m')}-{end_date.strftime('%d/%m')}")
         true_data = data.loc[start_date:end_date]
         pred_data = true_data.drop(["actual"], axis=1)
         true_data['predictions'] = model.predict(X=pred_data)
         true_data['img_index'] = pd.cut(true_data['predictions'], bins=image_binning, labels=IMG_PATH)
         imgs, captions = load_images(true_data['img_index'])
-        st.image(imgs, captions)
+        cols = st.columns(len(true_data))
+        for i, col in enumerate(cols):
+            with col:
+                date_column = start_date + datetime.timedelta(days=i)
+                st.write(date_column.strftime("%A %d/%m"))
+                st.image(imgs[i], captions[i])
 
 if __name__ == "__main__":
     main()
