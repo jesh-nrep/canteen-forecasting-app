@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 from PIL import Image
 
-IMG_BINS = np.array([0.2, 0.6, 0.8])
+IMG_BINS = np.array([0.3, 0.6, 0.8])
 IMG_PATH = np.array([1, 2, 3, 4])
 IMG_LABELS = np.array(["Slow day \n (1/4)", "Business as usual \n (2/4)", "Heavy load \n (3/4)", "Full house \n (4/4)"])
 
