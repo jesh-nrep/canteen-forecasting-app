@@ -1,6 +1,5 @@
 from PIL import Image
 import streamlit as st
-import plotly.graph_objects as go
 import datetime
 import os
 import numpy as np
