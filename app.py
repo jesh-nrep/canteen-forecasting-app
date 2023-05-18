@@ -44,8 +44,10 @@ def check_password():
     def password_entered():
         """Checks whether a password entered by the user is correct."""
         if st.session_state["password"] == st.secrets["password"]:
-            st.session_state["password_correct"] = True
+            st.session_state["password_correct"] = 'user'
             del st.session_state["password"]  # don't store password
+        elif st.session_state['password'] == st.secrets['admin_password']:
+            st.session_state['password_correct'] = 'admin'
         else:
             st.session_state["password_correct"] = False
 
@@ -64,7 +66,7 @@ def check_password():
         return False
     else:
         # Password correct.
-        return True
+        return st.session_state['password_correct']
 
 def load_images(arr):
     imgs = []
@@ -74,28 +76,38 @@ def load_images(arr):
         captions.append(IMG_LABELS[el-1])
     return imgs, captions
 
+def user_app():
+    model = load_model("regression_model", "azure", {"container": "models"})
+    data = load_data()
+    image_binning = IMG_BINS*data['actual'].mean()
+    image_binning = np.insert(image_binning, 0, data['actual'].min())
+    image_binning = np.append(image_binning, data['actual'].max())
+    option = st.selectbox('Whick week would you like to view?', options=('Last week', 'This week', 'Next week', "In two weeks"), index=1)
+    start_date, end_date = get_dates_of_week(option)
+    st.text(f"You have selected: {start_date.strftime('%d/%m')}-{end_date.strftime('%d/%m')}")
+    true_data = data.loc[start_date:end_date]
+    pred_data = true_data.drop(["actual"], axis=1)
+    true_data['predictions'] = model.predict(X=pred_data)
+    true_data['img_index'] = pd.cut(true_data['predictions'], bins=image_binning, labels=IMG_PATH)
+    imgs, captions = load_images(true_data['img_index'])
+    cols = st.columns(len(true_data))
+    for i, col in enumerate(cols):
+        with col:
+            date_column = start_date + datetime.timedelta(days=i)
+            st.write(date_column.strftime("%A %d/%m"))
+            st.image(imgs[i], captions[i])
+
+def admin_app():
+    pass
+
 def main():
-    if check_password():
-        st.title("Urban Partners Canteen Forecasting")
-        model = load_model("regression_model", "azure", {"container": "models"})
-        data = load_data()
-        image_binning = IMG_BINS*data['actual'].mean()
-        image_binning = np.insert(image_binning, 0, data['actual'].min())
-        image_binning = np.append(image_binning, data['actual'].max())
-        option = st.selectbox('Whick week would you like to view?', options=('Last week', 'This week', 'Next week', "In two weeks"), index=1)
-        start_date, end_date = get_dates_of_week(option)
-        st.text(f"You have selected: {start_date.strftime('%d/%m')}-{end_date.strftime('%d/%m')}")
-        true_data = data.loc[start_date:end_date]
-        pred_data = true_data.drop(["actual"], axis=1)
-        true_data['predictions'] = model.predict(X=pred_data)
-        true_data['img_index'] = pd.cut(true_data['predictions'], bins=image_binning, labels=IMG_PATH)
-        imgs, captions = load_images(true_data['img_index'])
-        cols = st.columns(len(true_data))
-        for i, col in enumerate(cols):
-            with col:
-                date_column = start_date + datetime.timedelta(days=i)
-                st.write(date_column.strftime("%A %d/%m"))
-                st.image(imgs[i], captions[i])
+    st.title("Urban Partners Canteen Forecasting")
+    cond = check_password()
+    if cond == "user":
+        user_app()
+    elif cond == "admin":
+        admin_app()
+        
 
 if __name__ == "__main__":
     main()
