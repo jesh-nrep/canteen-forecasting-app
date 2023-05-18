@@ -31,8 +31,8 @@ def load_images(arr):
 def explainer_load_images():
     imgs = []
     captions = []
-    for i in range(len(IMG_LABELS)):
-        imgs.append(Image.open("imgs/chef" + str(i+1) + ".jpg"))
+    for i, path in enumerate(IMG_PATH):
+        imgs.append(Image.open("imgs/chef" + str(path) + ".jpg"))
         captions.append(IMG_LABELS[i])
     return imgs, captions
 
