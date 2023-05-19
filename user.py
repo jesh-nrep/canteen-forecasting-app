@@ -7,6 +7,7 @@ from PIL import Image
 IMG_BINS = np.array([0.3, 0.6, 0.8])
 IMG_PATH = np.array([1, 2, 3, 4])
 IMG_LABELS = np.array(["Slow day \n (1/4)", "Business as usual \n (2/4)", "Heavy load \n (3/4)", "Full house \n (4/4)"])
+rounding_func = lambda x: round(x/10)*10 # Round to nearest 10
 
 def get_dates_of_week(week_str: str):
     week = datetime.date.today()
@@ -36,6 +37,7 @@ def explainer_load_images():
         captions.append(IMG_LABELS[i])
     return imgs, captions
 
+
 def user_app(model, data, headcount):
     image_binning = IMG_BINS*headcount
     image_binning = np.insert(image_binning, 0, 0)
@@ -61,4 +63,10 @@ def user_app(model, data, headcount):
         for i, col in enumerate(explainer_columns):
             with col:
                 st.image(explainer_imgs[i], explainer_captions[i])
-        st.write("Explanation regarding categories....")
+        st.write(f"""
+        The categories are defined according to the head count in the Danish office. As of today, there are {headcount} employees in the Danish office.\n
+        A slow day indicates that there will be less people in the office than normal (less than {rounding_func(image_binning[1])} people). Slow days often occurs on public holidays.\n
+        Business as usual means that it is considered a normal day at the office (between {rounding_func(image_binning[1])}-{rounding_func(image_binning[2])} people).\n
+        Heavy load is busier than usual (between {rounding_func(image_binning[2])}-{rounding_func(image_binning[3])} people).\n
+        Full house is above {rounding_func(image_binning[3])} people and is the most busy.
+        """)
