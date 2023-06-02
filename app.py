@@ -21,9 +21,10 @@ def load_headcount():
     blob = BlobClient.from_connection_string(conn_str=os.environ["AZURE_STORAGE_CONNECTION_STRING"], 
                                              container_name="data", 
                                              blob_name="dk_headcount.json")
+    latest_modified = blob.get_blob_properties().last_modified
     blob_data = blob.download_blob()
     headcount_json = json.loads(blob_data.readall())
-    return sum(headcount_json.values())
+    return sum(headcount_json.values()), latest_modified
 
 def check_password():
     """Returns `True` if the user had the correct password."""
@@ -57,10 +58,12 @@ def check_password():
         return st.session_state['password_correct']
 
 def main():
-    st.title("Urban Partners Canteen Forecasting")
+    
     model = load_model("regression_model", "azure", {"container": "models"})
     data = load_data()
-    headcount = load_headcount()
+    headcount, latest_modified = load_headcount()
+    st.title("Urban Partners Canteen Forecasting")
+    st.write("Updated: ", latest_modified.strftime("%d-%m-%Y"))
     cond = check_password()
     if cond == "user":
         user_app(model, data, headcount)
