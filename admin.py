@@ -1,6 +1,8 @@
 import datetime
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
+
 def next_week_range():
     next_week = datetime.date.today() + datetime.timedelta(weeks=1)
     desired_week_start = datetime.datetime.strptime(next_week.strftime("%Y-W%W") + '-1', "%Y-W%W-%w")
@@ -39,8 +41,18 @@ def admin_app(model, data, headcount):
                     title_x = 0.5,
                     title_text=plot_title(start_date, end_date))
     fig.update_yaxes(range=[0,headcount])
-    fig.add_hrect(y0=0, y1=90, line_width=0, fillcolor="green", opacity=0.2)
-    fig.add_hrect(y0=90, y1=180, line_width=0, fillcolor="yellow", opacity=0.2)
-    fig.add_hrect(y0=180, y1=240, line_width=0, fillcolor="black", opacity=0.2)
-    fig.add_hrect(y0=240, y1=302, line_width=0, fillcolor="red", opacity=0.2)
+    # add horizontal line
+    fig.add_shape(type="line",
+                x0=0,
+                y0=90,
+                x1=1000,
+                y1=180,
+                line=dict(
+                    color="Red",
+                    width=2,
+                    dash="dashdot",
+                    opacity=0.5
+                ),
+                )
+    
     st.plotly_chart(fig, use_container_width=True)
