@@ -48,8 +48,7 @@ def admin_app(model, data, headcount):
                 y1=180,
                 line=dict(
                     color="Red",
-                    width=2,
-                    dash="dashdot",
+                    width="2px",
                     opacity=0.5
                 ),
                 )
