@@ -46,5 +46,11 @@ def admin_app(model, data, headcount):
     fig.add_hline(y=90, line_width=0.5, line_dash="dash", line_color="Yellow", annotation_text="Business as usual", annotation_position="top right", annotation_opacity=0.9)
     fig.add_hline(y=180, line_width=0.5, line_dash="dash", line_color="Orange", annotation_text="Heavy load", annotation_position="top right", annotation_opacity=0.9)
     fig.add_hline(y=240, line_width=0.5, line_dash="dash", line_color="Red", annotation_text="Max capacity", annotation_position="top right", annotation_opacity=0.9)
+
+    # Colored rectangles to indicate capacity levels
+    fig.add_hrect(y0=0, y1=90, line_width=0, fillcolor="Green", opacity=0.1)
+    fig.add_hrect(y0=90, y1=180, line_width=0, fillcolor="Yellow", opacity=0.1)
+    fig.add_hrect(y0=180, y1=240, line_width=0, fillcolor="Orange", opacity=0.1)
+    fig.add_hrect(y0=240, y1=300, line_width=0, fillcolor="Red", opacity=0.1)
     
     st.plotly_chart(fig, use_container_width=True)
