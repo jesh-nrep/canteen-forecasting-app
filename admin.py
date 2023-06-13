@@ -41,9 +41,9 @@ def admin_app(model, data, headcount):
                     title_text=plot_title(start_date, end_date))
     fig.update_yaxes(range=[0,headcount])
    
-    # Horizontal lines
-    fig.add_hline(y=90, line_width=1, line_dash="dash", line_color="Yellow", annotation_text="Business as usual", annotation_position="bottom right")
-    fig.add_hline(y=180, line_width=1, line_dash="dash", line_color="Orange", annotation_text="Heavy load", annotation_position="bottom right")
-    fig.add_hline(y=240, line_width=1, line_dash="dash", line_color="Red", annotation_text="Max capacity", annotation_position="bottom right")
+    # Horizontal lines to indicate capacity levels
+    fig.add_hline(y=90, line_width=1, line_dash="dash", line_color="Yellow", annotation_text="Business as usual", annotation_position="top right")
+    fig.add_hline(y=180, line_width=1, line_dash="dash", line_color="Orange", annotation_text="Heavy load", annotation_position="top right")
+    fig.add_hline(y=240, line_width=1, line_dash="dash", line_color="Red", annotation_text="Max capacity", annotation_position="top right")
     
     st.plotly_chart(fig, use_container_width=True)
