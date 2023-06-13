@@ -41,15 +41,15 @@ def admin_app(model, data, headcount):
                     title_text=plot_title(start_date, end_date))
     fig.update_yaxes(range=[0,headcount])
     # add horizontal line
-    fig.add_shape(type="dash",
-                x0=0,
-                y0=90,
-                x1=1000,
-                y1=180,
-                line=dict(
-                    color="Red",
-                    opacity=0.5
-                ),
-                )
-    
+    # fig.add_shape(type="dash",
+    #             x0=0,
+    #             y0=90,
+    #             x1=1000,
+    #             y1=180,
+    #             line=dict(
+    #                 color="Red",
+    #                 opacity=0.5)
+    # )
+    fig.add_scatter(x=[0,1000], y=[90,180], mode="lines", name="Business as usual", line=dict(color="Red", opacity=0.5))
+
     st.plotly_chart(fig, use_container_width=True)
