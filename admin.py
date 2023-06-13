@@ -42,11 +42,8 @@ def admin_app(model, data, headcount):
     fig.update_yaxes(range=[0,headcount])
    
     # Horizontal lines
-    fig.add_scatter(x=[end_date, end_date], y=[0,90], name="Slow day", line=dict(color="Green"))
-    fig.add_scatter(x=[end_date, end_date], y=[90,180], name="Business as usual", line=dict(color="Yellow"))
-    fig.add_scatter(x=[end_date, end_date], y=[180,240], name="Heavy load", line=dict(color="Orange"))
-    fig.add_scatter(x=[end_date, end_date], y=[240,302], name="Full house", line=dict(color="Red"))
-
-    fig.add_hline(y=90, line_width=1, line_dash="dash", line_color="Blue")
-
+    fig.add_hline(y=90, line_width=1, line_dash="dash", line_color="Yellow", annotation_text="Business as usual", annotation_position="bottom right")
+    fig.add_hline(y=180, line_width=1, line_dash="dash", line_color="Orange", annotation_text="Heavy load", annotation_position="bottom right")
+    fig.add_hline(y=240, line_width=1, line_dash="dash", line_color="Red", annotation_text="Max capacity", annotation_position="bottom right")
+    
     st.plotly_chart(fig, use_container_width=True)
