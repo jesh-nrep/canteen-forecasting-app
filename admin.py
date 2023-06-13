@@ -41,7 +41,7 @@ def admin_app(model, data, headcount):
                     title_text=plot_title(start_date, end_date))
     fig.update_yaxes(range=[0,headcount])
     # add horizontal line
-    fig.add_shape(type="line",
+    fig.add_shape(type="dash",
                 x0=0,
                 y0=90,
                 x1=1000,
