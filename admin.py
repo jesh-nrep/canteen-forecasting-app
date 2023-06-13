@@ -42,6 +42,7 @@ def admin_app(model, data, headcount):
     fig.update_yaxes(range=[0,headcount])
    
     # Horizontal lines to indicate capacity levels
+    fig.add_hline(y=0, line_width=0, line_dash="dash", line_color="Green", annotation_text="Slow day", annotation_position="top right")
     fig.add_hline(y=90, line_width=1, line_dash="dash", line_color="Yellow", annotation_text="Business as usual", annotation_position="top right")
     fig.add_hline(y=180, line_width=1, line_dash="dash", line_color="Orange", annotation_text="Heavy load", annotation_position="top right")
     fig.add_hline(y=240, line_width=1, line_dash="dash", line_color="Red", annotation_text="Max capacity", annotation_position="top right")
