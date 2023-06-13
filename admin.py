@@ -50,6 +50,6 @@ def admin_app(model, data, headcount):
     #                 color="Red",
     #                 opacity=0.5)
     # )
-    fig.add_scatter(x=[0,1000], y=[90,180], mode="lines", name="Business as usual", line=dict(color="Red", opacity=0.5))
+    fig.add_scatter(x=[0,1000], y=[90,180], mode="lines", name="Business as usual", line=dict(color="Red"))
 
     st.plotly_chart(fig, use_container_width=True)
