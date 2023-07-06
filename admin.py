@@ -1,3 +1,6 @@
+from azure.storage.blob import BlobClient
+import pandas as pd
+import os
 import datetime
 import streamlit as st
 import plotly.graph_objects as go
@@ -53,4 +56,27 @@ def admin_app(model, data, headcount):
     fig.add_hline(y=180, line_width=0, line_dash="dash", line_color="Orange", annotation_text="Heavy load", annotation_position="top right", annotation_opacity=0.9)
     fig.add_hline(y=240, line_width=0, line_dash="dash", line_color="Red", annotation_text="Max capacity", annotation_position="top right", annotation_opacity=0.9)
     
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Model scores in training
+    blob = BlobClient.from_connection_string(conn_str=os.environ["AZURE_STORAGE_CONNECTION_STRING"], 
+                                             container_name="models", 
+                                             blob_name="model_scores.csv")
+    blob_data = blob.download_blob()
+    model_scores = pd.read_csv(blob_data)
+    st.table(model_scores)
+
+    # Feature Importance plot
+    feature_importance = model.feature_importances_
+    feature_names = model.feature_names_in_[:-1] # Last is dependent variable
+    feature_names = [x for _,x in sorted(zip(model.feature_importances_, model.feature_names_in_), key=lambda pair: pair[0])]
+    feature_importance = sorted(feature_importance)
+    fig = go.Figure(go.Bar(
+        x = feature_importance,
+        y = feature_names,
+        orientation="h"
+    ))
+    fig.update_layout(yaxis_title="Feature",
+                      xaxis_title="Importance",
+                      title_text="Feature Importance")
     st.plotly_chart(fig, use_container_width=True)
