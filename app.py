@@ -58,7 +58,7 @@ def check_password():
         return st.session_state['password_correct']
 
 def main():
-    model = load_model("regression_model", "azure", {"container": "models"}) # ERROR 
+    model = load_model("regression_model", platform="azure", authentication={"container": "models"}) # ERROR 
     data = load_data()
     headcount, latest_modified = load_headcount()
     st.title("Urban Partners Canteen Forecasting")
