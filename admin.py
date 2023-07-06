@@ -63,7 +63,8 @@ def admin_app(model, data, headcount):
                                              container_name="models", 
                                              blob_name="model_scores.csv")
     blob_data = blob.download_blob()
-    model_scores = pd.read_csv(blob_data).iloc[:4, :] # Show top 5
+    model_scores = pd.read_csv(blob_data).iloc[:5, :] # Show top 5
+    model_scores.index = model_scores.index + 1
     st.table(model_scores)
 
     # Feature Importance plot
