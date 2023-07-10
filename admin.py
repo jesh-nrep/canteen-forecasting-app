@@ -27,10 +27,10 @@ def admin_app(model, data, headcount):
         st.stop()
     start_date, end_date = dates
     true_data = data.loc[start_date:end_date]
-    pred_data = true_data.drop(["actual"], axis=1)#.dropna()
+    pred_data = true_data.drop(["actual"], axis=1).round(0) #.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
-    true_data['predictions'] = model.predict(X=pred_data)
-    copy_data = true_data.dropna().round(0)
+    true_data['predictions'] = model.predict(X=pred_data).round(0)
+    copy_data = true_data.dropna()
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
