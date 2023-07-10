@@ -30,8 +30,8 @@ def admin_app(model, data, headcount):
     pred_data = true_data.drop(["actual"], axis=1)#.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
     true_data['predictions'] = model.predict(X=pred_data)
-    
-    copy_data = true_data.dropna()
+    copy_data = true_data.dropna().round(0)
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
     if true_data['actual'].isna().sum() > 0:
