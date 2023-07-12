@@ -39,7 +39,7 @@ def admin_app(model, data, headcount, historical_predictions):
     if true_data['actual'].isna().sum() > 0:
         fig.add_trace(go.Scatter(x=true_data.index.strftime("%A %d/%m"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
     if not historical.empty:
-        fig.add_trace(go.Scatter(x=historical.index.strftime("%A %d/%m"), y=historical['predictions'], name="Saved Predictions", line_color="#ed1b0a"))            
+        fig.add_trace(go.Scatter(x=historical.index.strftime("%A %d/%m"), y=historical['predictions'], name="Stored Predictions", line_color="#ed1b0a"))            
     fig.update_layout(xaxis_title="Week day",
                     yaxis_title="Number of eating guests",
                     showlegend=True,
