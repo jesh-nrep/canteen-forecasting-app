@@ -34,6 +34,7 @@ def admin_app(model, data, headcount, historical_predictions):
     
     
     copy_data = true_data.dropna()
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
     if true_data['actual'].isna().sum() > 0:
