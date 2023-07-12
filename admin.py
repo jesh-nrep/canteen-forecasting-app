@@ -20,23 +20,26 @@ def plot_title(start_date, end_date):
         title_str = f"Week {start_week}-{end_week}: {start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
     return title_str
 
-def admin_app(model, data, headcount):
+def admin_app(model, data, headcount, historical_predictions):
     week_start, week_end = next_week_range()
     dates = st.date_input("Choose dates", (week_start, week_end), max_value=week_end+datetime.timedelta(weeks=1))
     if len(dates) != 2:
         st.stop()
     start_date, end_date = dates
     true_data = data.loc[start_date:end_date]
+    historical = historical_predictions.loc[start_date:end_date]
     pred_data = true_data.drop(["actual"], axis=1)#.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
     true_data['predictions'] = model.predict(X=pred_data)
+    
     
     copy_data = true_data.dropna()
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=copy_data.index.strftime("%A %d/%m"), y=copy_data['actual'], name="Actual", line_color="#2ca02c"))
     if true_data['actual'].isna().sum() > 0:
         fig.add_trace(go.Scatter(x=true_data.index.strftime("%A %d/%m"), y=true_data['predictions'], name="Prediction", line_color="#1f77b4"))
-    
+    if not historical.empty:
+        fig.add_trace(go.Scatter(x=historical.index.strftime("%A %d/%m"), y=historical['predictions'], name="Saved Predictions", line_color="#ed1b0a"))            
     fig.update_layout(xaxis_title="Week day",
                     yaxis_title="Number of eating guests",
                     showlegend=True,

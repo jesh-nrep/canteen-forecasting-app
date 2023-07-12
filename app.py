@@ -57,6 +57,14 @@ def check_password():
         # Password correct.
         return st.session_state['password_correct']
 
+def load_historical_predictions():
+    blob = BlobClient.from_connection_string(conn_str=os.environ["AZURE_STORAGE_CONNECTION_STRING"], 
+                                             container_name="data", 
+                                             blob_name="predicted_data.csv")
+    blob_data = blob.download_blob()
+    data = pd.read_csv(blob_data, parse_dates=['date'], index_col="date")
+    return data
+
 def main():
     model = load_model("regression_model", platform="azure", authentication={"container": "models"}) # ERROR 
     data = load_data()
@@ -67,7 +75,8 @@ def main():
     if cond == "user":
         user_app(model, data, headcount)
     elif cond == "admin":
-        admin_app(model, data, headcount)
+        historical_predictions = load_historical_predictions()
+        admin_app(model, data, headcount, historical_predictions)
         
 
 if __name__ == "__main__":
