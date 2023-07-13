@@ -66,7 +66,7 @@ def load_historical_predictions():
     return data
 
 def main():
-    model = load_model("regression_model", platform="azure", authentication={"container": "models"}) # ERROR 
+    model = load_model("regression_model", platform="azure", authentication={"container": "models"})
     data = load_data()
     headcount, latest_modified = load_headcount()
     st.title("Urban Partners Canteen Forecasting")
