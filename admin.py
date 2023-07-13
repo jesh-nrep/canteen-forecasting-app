@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 
 def next_week_range():
     next_week = datetime.date.today() + datetime.timedelta(weeks=1)
-    desired_week_start = datetime.datetime.strptime(next_week.strftime("%Y-W%W") + '-1', "%Y-W%W-%w")
-    desired_week_end = desired_week_start + datetime.timedelta(days=4)
+    desired_week_end = next_week + datetime.timedelta(days=4-next_week.weekday())
+    desired_week_start = desired_week_end - datetime.timedelta(weeks=2, days=4)
     return desired_week_start, desired_week_end
 
 def plot_title(start_date, end_date):
