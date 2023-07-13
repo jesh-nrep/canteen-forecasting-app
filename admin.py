@@ -30,7 +30,7 @@ def admin_app(model, data, headcount, historical_predictions):
     historical = historical_predictions.loc[start_date:end_date]
     pred_data = true_data.drop(["actual"], axis=1)#.dropna()
     #true_data['predictions'] = model.predict(fh=np.arange(1,6), X=pred_data)
-    true_data['predictions'] = model.predict(X=pred_data)
+    true_data['predictions'] = model.predict(X=pred_data).round(0)
     
     
     copy_data = true_data.dropna()
